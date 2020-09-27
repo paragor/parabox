@@ -19,7 +19,7 @@ func NewRandMutator(lifeCoef int, lifeCell core.CellState) *RandMutator {
 }
 
 func (r RandMutator) Mutate(field core.Field, x int, y int) {
-	if rand.Intn(100) > r.lifeCoef && field.Get(x, y) == core.EmptyCell {
+	if rand.Intn(100) <= r.lifeCoef && field.Get(x, y) == core.EmptyCell {
 		field.Set(x, y, r.lifeCell)
 	}
 }
