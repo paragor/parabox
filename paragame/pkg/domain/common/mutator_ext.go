@@ -4,53 +4,20 @@ import (
 	"github.com/paragor/parabox/paragame/pkg/domain/core"
 )
 
-type mutatorFuncAdapter struct {
-	fn func(field core.Field, x int, y int)
+type MultiObserver struct {
+	observers []core.FieldChangeObserver
 }
 
-func (m *mutatorFuncAdapter) Mutate(field core.Field, x int, y int) {
-	m.fn(field, x, y)
-}
-
-func MutatorFunc(mutator func(field core.Field, x int, y int)) core.Mutator {
-	return &mutatorFuncAdapter{fn: mutator}
-}
-
-// -----------
-
-type MultiMutator struct {
-	mutators []core.Mutator
-}
-
-func NewMultiMutator(one core.Mutator, other ...core.Mutator) *MultiMutator {
-	mutators := make([]core.Mutator, 0, 1+len(other))
-	mutators = append(mutators, one)
-	mutators = append(mutators, other...)
-	return &MultiMutator{mutators: mutators}
-}
-
-func (mm *MultiMutator) Mutate(field core.Field, x int, y int) {
-	for _, mutator := range mm.mutators {
-		mutator.Mutate(field, x, y)
+func (mo *MultiObserver) NotifyFieldChanged(field core.Field) {
+	for _, observer := range mo.observers {
+		observer.NotifyFieldChanged(field)
 	}
 }
 
-// ---------
-
-type SomeTimesMutator struct {
-	counter      int
-	stepInterval int
-	mutator      core.Mutator
+func NewMultiObserver(one core.FieldChangeObserver, other ...core.FieldChangeObserver) *MultiObserver {
+	observers := make([]core.FieldChangeObserver, 0, 1+len(other))
+	observers = append(observers, one)
+	observers = append(observers, other...)
+	return &MultiObserver{observers: observers}
 }
 
-func NewSomeTimesMutator(mutator core.Mutator, stepInterval int) *SomeTimesMutator {
-	return &SomeTimesMutator{counter: 0, stepInterval: stepInterval, mutator: mutator}
-}
-
-func (s *SomeTimesMutator) Mutate(field core.Field, x int, y int) {
-	s.counter++
-	if s.counter > s.stepInterval {
-		s.counter = 0
-		s.mutator.Mutate(field, x, y)
-	}
-}

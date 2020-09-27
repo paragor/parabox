@@ -24,16 +24,21 @@ func main() {
 	})
 	output.NotifyFieldChanged(field)
 
+	someTimesRandMutator := common.NewSomeTimesMutator(random_life.NewRandMutator(1, game_of_life.LifeCell), 100)
 	mutator := common.NewMultiMutator(
 		game_of_life.NewGameOfLifeMutator(),
-		common.NewSomeTimesMutator(random_life.NewRandMutator(10, game_of_life.LifeCell), 10),
+		someTimesRandMutator,
+	)
+	observer := common.NewMultiObserver(
+		output,
+		someTimesRandMutator,
 	)
 
 	game := core.NewGame(
 		field,
-		core.NewTimeTicker(time.Millisecond*1),
+		core.NewTimeTicker(time.Millisecond*60),
 		mutator,
-		output,
+		observer,
 	)
 	game.Start()
 	<-make(chan bool)
