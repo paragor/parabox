@@ -32,7 +32,7 @@ func (game *Game) Start() {
 				game.field.Next()
 				game.filedChangedObserver.NotifyFieldChanged(game.field)
 			case <-game.stop:
-				break
+				return
 			}
 		}
 	}()
